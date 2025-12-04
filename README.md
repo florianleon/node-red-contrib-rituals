@@ -186,4 +186,9 @@ MIT License
 
 ## Disclaimer
 
-Unofficial project, not affiliated with Rituals Cosmetics.
+This is primarily a personal project created for my own use. While I'm happy to share it with the community, please note that:
+- Maintenance and updates are not guaranteed
+- Support may be limited
+- Breaking changes may occur without notice
+
+This is an unofficial project and is not affiliated with or endorsed by Rituals Cosmetics.
