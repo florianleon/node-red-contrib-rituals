@@ -43,7 +43,6 @@ module.exports = function(RED) {
                     }
                 };
 
-                const battc = await getSensor('battc');
                 const wific = await getSensor('wific');
                 const fillc = await getSensor('fillc');
 
@@ -52,7 +51,6 @@ module.exports = function(RED) {
                     isOn: fanc === '1',
                     perfumeAmount: parseInt(speedc) || 0,
                     roomSize: roomc ? parseInt(roomc) : null,
-                    battery: battc ? parseInt(battc) : null,
                     wifi: wific ? parseInt(wific) : null,
                     perfumeLevel: fillc ? parseInt(fillc) : null
                 };
