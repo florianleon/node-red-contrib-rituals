@@ -8,7 +8,7 @@ Node-RED nodes for controlling Rituals Perfume Genie diffusers using the V2 API.
 - 🔍 Automatic device discovery
 - 💨 Power control (on/off)
 - 🎚️ Perfume intensity control (1-3)
-- 📊 Device status monitoring (battery, WiFi, perfume level)
+- 📊 Device status monitoring (WiFi signal, perfume level)
 - ✅ Token validation helper
 
 ## Installation
@@ -48,7 +48,7 @@ Turn device on or off. Configure action in node or via `msg.action`.
 Set perfume intensity (1-3). Configure amount in node or via `msg.perfumeAmount`.
 
 ### 6. Rituals Status
-Get device status (power, intensity, battery, WiFi, perfume level).
+Get device status (power, intensity, WiFi signal, perfume level).
 
 ## Quick Start
 
@@ -88,7 +88,7 @@ Configure intensity (1-3) in the Perfume node, or override with `msg.perfumeAmou
 ```
 [Inject: repeat 5min] → [Token Check] → [Rituals Status] → [Debug]
 ```
-Returns: `isOn`, `perfumeAmount`, `battery`, `wifi`, `perfumeLevel`.
+Returns: `isOn`, `perfumeAmount`, `wifi`, `perfumeLevel`.
 
 ### Dynamic Control with Function Node
 ```
