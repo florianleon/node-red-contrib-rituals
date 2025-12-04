@@ -1,0 +1,54 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rituals-perfume', {
+        category: 'smart home',
+        color: '#90CAF9',
+        defaults: {
+            name: {value: ""},
+            config: {value: "", type: "rituals-config"},
+            amount: {value: 2}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-tint",
+        label: function() {
+            return this.name || "Set Perfume";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rituals-perfume">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-amount"><i class="fa fa-tint"></i> Amount</label>
+        <select id="node-input-amount">
+            <option value="1">1 - Low</option>
+            <option value="2">2 - Medium</option>
+            <option value="3">3 - High</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Set Perfume">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rituals-perfume">
+    <p>Set the perfume intensity level of a Rituals diffuser.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>deviceHash <span class="property-type">string</span></dt>
+        <dd>The device hash</dd>
+        <dt class="optional">perfumeAmount <span class="property-type">number</span></dt>
+        <dd>Override configured amount (1-3)</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.success <span class="property-type">boolean</span></dt>
+        <dd>true if successful</dd>
+        <dt>payload.perfumeAmount <span class="property-type">number</span></dt>
+        <dd>The amount that was set</dd>
+    </dl>
+</script>

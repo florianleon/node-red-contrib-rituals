@@ -1,0 +1,53 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rituals-power', {
+        category: 'smart home',
+        color: '#90CAF9',
+        defaults: {
+            name: {value: ""},
+            config: {value: "", type: "rituals-config"},
+            action: {value: "on"}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-power-off",
+        label: function() {
+            return this.name || (this.action === 'on' ? "Turn On" : "Turn Off");
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rituals-power">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-action"><i class="fa fa-power-off"></i> Action</label>
+        <select id="node-input-action">
+            <option value="on">Turn On</option>
+            <option value="off">Turn Off</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Power">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rituals-power">
+    <p>Turn a Rituals diffuser on or off.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>deviceHash <span class="property-type">string</span></dt>
+        <dd>The device hash</dd>
+        <dt class="optional">action <span class="property-type">string</span></dt>
+        <dd>Override: "on" or "off"</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.success <span class="property-type">boolean</span></dt>
+        <dd>true if successful</dd>
+        <dt>payload.isOn <span class="property-type">boolean</span></dt>
+        <dd>true if device is on</dd>
+    </dl>
+</script>

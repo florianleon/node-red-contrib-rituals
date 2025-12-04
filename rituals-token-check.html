@@ -1,0 +1,165 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rituals-token-check', {
+        category: 'smart home',
+        color: '#90CAF9',
+        defaults: {
+            name: {value: ""}
+        },
+        inputs: 1,
+        outputs: 2,
+        outputLabels: ["valid token", "invalid/expired"],
+        icon: "font-awesome/fa-check-circle",
+        label: function() {
+            return this.name || "Token Check";
+        },
+        paletteLabel: "token check"
+    });
+</script>
+
+<script type="text/html" data-template-name="rituals-token-check">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Token Check">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rituals-token-check">
+    <p>Checks if a Rituals authentification token is valid and not expired.</p>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Valid Token
+            <dl class="message-properties">
+                <dt>payload.valid <span class="property-type">boolean</span></dt>
+                <dd>true if token exists and is not expired</dd>
+                
+                <dt>payload.tokenLength <span class="property-type">number</span></dt>
+                <dd>Length of the stored token</dd>
+                
+                <dt>payload.expiresIn <span class="property-type">string</span></dt>
+                <dd>Time remaining until token expires (e.g. "22 hours")</dd>
+                
+                <dt>payload.expiresAt <span class="property-type">string</span></dt>
+                <dd>Date/time when token will expire</dd>
+                
+                <dt>payload.deviceCount <span class="property-type">number</span></dt>
+                <dd>Number of devices available</dd>
+                
+                <dt>payload.firstDeviceHash <span class="property-type">string</span></dt>
+                <dd>Hash of the first device (for quick access)</dd>
+                
+                <dt>ritualsToken <span class="property-type">string</span></dt>
+                <dd>The full authentification token</dd>
+                
+                <dt>ritualsDevices <span class="property-type">array</span></dt>
+                <dd>Array of all available devices</dd>
+                
+                <dt>deviceHash <span class="property-type">string</span></dt>
+                <dd>Hash of first device (ready to use with controller)</dd>
+            </dl>
+        </li>
+        
+        <li>Invalid/Expired Token
+            <dl class="message-properties">
+                <dt>payload.valid <span class="property-type">boolean</span></dt>
+                <dd>false - token is missing or expired</dd>
+                
+                <dt>payload.error <span class="property-type">string</span></dt>
+                <dd>Error message explaining why token is invalid</dd>
+                
+                <dt>payload.expired <span class="property-type">boolean</span></dt>
+                <dd>true if token exists but has expired</dd>
+                
+                <dt>payload.expiredAt <span class="property-type">string</span></dt>
+                <dd>When the token expired (if applicable)</dd>
+                
+                <dt>payload.message <span class="property-type">string</span></dt>
+                <dd>User-friendly message about what to do</dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>Details</h3>
+    <p>This node checks the validity of the stored Rituals authentification token. It has two outputs:</p>
+    <ul>
+        <li><strong>Output 1 (Valid):</strong> Token exists and is not expired. Message includes token, devices, and first device hash.</li>
+        <li><strong>Output 2 (Invalid):</strong> Token is missing or expired. Use this to trigger re-authentification.</li>
+    </ul>
+
+    <h3>Usage Examples</h3>
+    
+    <h4>Example 1: Check Before Control</h4>
+    <pre>
+[Inject] → [Token Check] → [Rituals Controller]
+               ↓ (invalid)
+           [Rituals Auth]
+    </pre>
+    <p>Check token validity before sending commands. If invalid, trigger authentification.</p>
+
+    <h4>Example 2: Periodic Health Check</h4>
+    <pre>
+[Inject: every 1 hour] → [Token Check] → [Debug: "Token OK"]
+                             ↓ (invalid)
+                         [Rituals Auth]
+    </pre>
+    <p>Periodically verify token and re-authenticate if expired.</p>
+
+    <h4>Example 3: Startup Validation</h4>
+    <pre>
+[Inject: once on start] → [Token Check] → [Dashboard: "Ready"]
+                              ↓ (invalid)
+                          [Rituals Auth] → [Token Check]
+    </pre>
+    <p>On Node-RED startup, check if stored token is still valid. If not, authenticate first.</p>
+
+    <h3>Token Expiry</h3>
+    <p>Rituals tokens are valid for <strong>24 hours</strong> from authentification. This node checks:</p>
+    <ul>
+        <li>If token exists in context storage</li>
+        <li>If token expiry time has passed</li>
+        <li>Time remaining until expiration</li>
+    </ul>
+
+    <h3>Context Storage</h3>
+    <p>This node reads from both flow and global context:</p>
+    <ul>
+        <li><code>flow.ritualsToken</code> or <code>global.ritualsToken</code></li>
+        <li><code>flow.ritualsTokenExpiry</code> or <code>global.ritualsTokenExpiry</code></li>
+        <li><code>flow.ritualsDevices</code> or <code>global.ritualsDevices</code></li>
+    </ul>
+
+    <h3>Status Indicators</h3>
+    <ul>
+        <li><span style="color: green;">● Green:</span> Token is valid (shows hours remaining)</li>
+        <li><span style="color: yellow;">◯ Yellow:</span> Token is expired</li>
+        <li><span style="color: red;">◯ Red:</span> No token found</li>
+    </ul>
+
+    <h3>Function Node Alternative</h3>
+    <p>You can also check token validity in a function node:</p>
+    <pre>
+const token = global.get('ritualsToken');
+const expiry = global.get('ritualsTokenExpiry');
+
+if (!token) {
+    msg.payload = { valid: false, error: 'No token' };
+    return [null, msg]; // Invalid output
+}
+
+if (Date.now() > expiry) {
+    msg.payload = { valid: false, error: 'Expired' };
+    return [null, msg]; // Invalid output
+}
+
+msg.payload = { valid: true };
+return [msg, null]; // Valid output
+    </pre>
+
+    <h3>Tips</h3>
+    <ul>
+        <li>Use this node before every controller operation to ensure valid token</li>
+        <li>Set up automatic re-authentification on the "invalid" output</li>
+        <li>Check token on Node-RED startup to validate persistent storage</li>
+        <li>Monitor the status indicator to see token health at a glance</li>
+    </ul>
+</script>

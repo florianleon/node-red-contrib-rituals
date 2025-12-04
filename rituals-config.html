@@ -1,0 +1,39 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rituals-config', {
+        category: 'config',
+        defaults: {
+            email: { value: '', required: true }
+        },
+        credentials: {
+            password: { type: 'password' }
+        },
+        label: function() {
+            return this.email || 'Rituals Account';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rituals-config">
+    <div class="form-row">
+        <label for="node-config-input-email"><i class="fa fa-envelope"></i> Email</label>
+        <input type="email" id="node-config-input-email" placeholder="your@email.com">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+        <input type="password" id="node-config-input-password" placeholder="Password">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rituals-config">
+    <p>Configuration node for Rituals Perfume Genie API authentification.</p>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>Email <span class="property-type">string</span></dt>
+        <dd>Your Rituals account email address</dd>
+        <dt>Password <span class="property-type">string</span></dt>
+        <dd>Your Rituals account password</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>This configuration node handles authentification with the Rituals V2 API.
+    The authentification token is automatically refreshed when needed.</p>
+</script>

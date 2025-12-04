@@ -1,0 +1,100 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rituals-auth', {
+        category: 'smart home',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: '' },
+            config: { value: '', type: 'rituals-config', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-key',
+        label: function() {
+            return this.name || 'Rituals Auth';
+        },
+        labelStyle: function() {
+            return this.name ? 'node_label_italic' : '';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rituals-auth">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-user"></i> Account</label>
+        <input type="text" id="node-input-config">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rituals-auth">
+    <p>Authenticate with Rituals API and retrieve device list. Stores token and devices for reuse.</p>
+    
+    <h3>Purpose</h3>
+    <p>This node performs one-time authentification and device discovery. Use it once at startup, 
+    then use the regular rituals-controller node with the stored token to control devices.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>Any message</dt>
+        <dd>Triggers authentification - payload is ignored</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.authenticated <span class="property-type">boolean</span></dt>
+        <dd>Whether authentification was successful</dd>
+        
+        <dt>payload.token <span class="property-type">string</span></dt>
+        <dd>The full authentification token (stored for reuse)</dd>
+        
+        <dt>payload.tokenPreview <span class="property-type">string</span></dt>
+        <dd>First 30 characters of token for display</dd>
+        
+        <dt>payload.deviceCount <span class="property-type">number</span></dt>
+        <dd>Number of devices found</dd>
+        
+        <dt>payload.devices <span class="property-type">array</span></dt>
+        <dd>Simplified list of devices with hash, name, and status</dd>
+    </dl>
+
+    <h3>Storage</h3>
+    <p>The token and device list are automatically stored in:</p>
+    <ul>
+        <li><code>flow.ritualsToken</code> - Authentification token</li>
+        <li><code>flow.ritualsDevices</code> - Full device data</li>
+        <li><code>global.ritualsToken</code> - Token (available everywhere)</li>
+        <li><code>global.ritualsDevices</code> - Devices (available everywhere)</li>
+    </ul>
+
+    <h3>Usage Pattern</h3>
+    <ol>
+        <li><strong>Run once at startup:</strong> Connect an inject node (set to run once on start) to this auth node</li>
+        <li><strong>Control devices:</strong> Use rituals-controller node which will use the stored token automatically</li>
+        <li><strong>Re-authenticate:</strong> Only needed if token expires (rare) or after Node-RED restart</li>
+    </ol>
+
+    <h3>Example Flow</h3>
+    <pre>
+[Inject: Once on startup] → [Rituals Auth] → [Debug: Show devices]
+                                   ↓
+                          (Stores token & devices)
+                                   ↓
+[Inject: Turn On] → [Function: Set hash] → [Rituals Controller] → [Debug]
+    </pre>
+
+    <h3>Rate Limiting</h3>
+    <p><strong>Important:</strong> The Rituals API has strict rate limiting. Only run this node:</p>
+    <ul>
+        <li>Once at Node-RED startup</li>
+        <li>When you need to refresh the device list</li>
+        <li>If you get authentification errors</li>
+    </ul>
+    <p>Do NOT trigger this node repeatedly or on every deploy!</p>
+
+    <h3>Details</h3>
+    <p>This node authenticates with your Rituals account and retrieves all linked devices.
+    The token is valid for 24 hours and is stored for reuse by other nodes.</p>
+</script>
