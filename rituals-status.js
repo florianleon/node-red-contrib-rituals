@@ -6,6 +6,10 @@ module.exports = function(RED) {
         const node = this;
         
         node.config = RED.nodes.getNode(config.config);
+        
+        // Store last known values
+        node.lastWifi = null;
+        node.lastPerfumeLevel = null;
 
         if (!node.config) {
             node.error('Missing Rituals configuration');
@@ -46,13 +50,31 @@ module.exports = function(RED) {
                 const wific = await getSensor('wific');
                 const fillc = await getSensor('fillc');
 
+                // Parse values from API response objects
+                const getFancValue = (data) => data?.value || data;
+                const getSpeedcValue = (data) => data?.value || data;
+                const getRoomcValue = (data) => data?.value || data;
+                const getSensorValue = (data) => data?.raw || data?.value || data;
+
+                // Update last known values if available
+                // WiFi signal: convert from dBm to percentage (rough approximation)
+                const wifiRaw = wific ? parseInt(getSensorValue(wific)) : null;
+                const wifiValue = wifiRaw !== null ? Math.min(100, Math.max(0, 100 + wifiRaw)) : null;
+                
+                // Perfume level: 30ml cartridge, raw value likely in 0.01ml units
+                const perfumeRaw = fillc ? parseInt(getSensorValue(fillc)) : null;
+                const perfumeValue = perfumeRaw !== null ? Math.min(100, Math.round((perfumeRaw / 16000) * 100)) : null;
+                
+                if (wifiValue !== null) node.lastWifi = wifiValue;
+                if (perfumeValue !== null) node.lastPerfumeLevel = perfumeValue;
+
                 msg.payload = {
                     deviceHash: hash,
-                    isOn: fanc === '1',
-                    perfumeAmount: parseInt(speedc) || 0,
-                    roomSize: roomc ? parseInt(roomc) : null,
-                    wifi: wific ? parseInt(wific) : null,
-                    perfumeLevel: fillc ? parseInt(fillc) : null
+                    isOn: getFancValue(fanc) === '1',
+                    perfumeAmount: parseInt(getSpeedcValue(speedc)) || 0,
+                    roomSize: roomc ? parseInt(getRoomcValue(roomc)) : null,
+                    wifi: node.lastWifi,
+                    perfumeLevel: node.lastPerfumeLevel
                 };
 
                 node.status({ fill: 'green', shape: 'dot', text: fanc === '1' ? 'on' : 'off' });
