@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/florianleon/node-red-contrib-rituals.git"
+    "url": "git+https://github.com/florianleon/node-red-contrib-rituals.git"
   },
   "node-red": {
     "nodes": {
